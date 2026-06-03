@@ -1,0 +1,13 @@
+{
+  "name": "llm-portability-demo",
+  "private": true,
+  "type": "module",
+  "description": "All four provider-portability packages working together, end to end.",
+  "scripts": { "start": "node demo.mjs" },
+  "dependencies": {
+    "tool-schema": "^0.1.1",
+    "llm-messages": "^0.4.1",
+    "llm-errors": "^0.1.1",
+    "llm-sse": "^0.4.0"
+  }
+}
