@@ -38,7 +38,9 @@ It runs **offline** against a canned OpenAI streaming response, so you can see t
 
 Read the [provider portability map](./docs/provider-portability.md) for the
 problem breakdown, package roles and why `llm-messages` is the strongest single
-repo to use for the OpenAI Codex for OSS application.
+repo to use for the OpenAI Codex for OSS application. The
+[OpenAI-compatible agent portability article](./docs/openai-compatible-agent-portability.md)
+explains the suite from the perspective of agent fallback and provider choice.
 
 ## What it shows
 
