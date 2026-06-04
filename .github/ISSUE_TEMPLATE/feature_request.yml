@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest an integration or demo flow to add
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the provider-portability flow the demo should show.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should the demo output or workflow look like?
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Links to related package issues, provider docs, or examples.
