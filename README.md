@@ -31,6 +31,12 @@ npm start
 
 It runs **offline** against a canned OpenAI streaming response, so you can see the whole flow without an API key. Swap `mockOpenAIStream()` in `demo.mjs` for `(await fetch(...)).body` and it goes live — nothing else changes.
 
+## Portability map
+
+Read the [provider portability map](./docs/provider-portability.md) for the
+problem breakdown, package roles and why `llm-messages` is the strongest single
+repo to use for the OpenAI Codex for OSS application.
+
 ## What it shows
 
 ```
