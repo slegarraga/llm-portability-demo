@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "description": "All four provider-portability packages working together, end to end.",
+  "license": "MIT",
   "scripts": { "start": "node demo.mjs" },
   "dependencies": {
     "tool-schema": "^0.1.1",
