@@ -15,4 +15,4 @@ repeated bad-faith disruption are not acceptable.
 Maintainers may edit, hide, or remove comments; close issues or pull requests;
 block users; or report abuse to GitHub when needed to keep the project usable.
 
-Report conduct issues privately to the maintainer.
+Report conduct issues privately to `sebastian@0a.cl`.

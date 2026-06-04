@@ -7,8 +7,7 @@ This demo tracks the current `main` branch.
 ## Reporting a vulnerability
 
 Please report security issues privately by opening a GitHub security advisory
-or emailing the maintainer listed on the npm packages. Do not open a public
-issue for vulnerabilities.
+or emailing `sebastian@0a.cl`. Do not open a public issue for vulnerabilities.
 
 Include:
 
