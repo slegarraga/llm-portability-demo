@@ -8,6 +8,7 @@
 The zero-dependency provider-portability package suite working together, end to
 end:
 
+- [`json-from-llm`](https://www.npmjs.com/package/json-from-llm) — recover JSON from reasoning, markdown or prose output.
 - [`tool-schema`](https://www.npmjs.com/package/tool-schema) — one JSON Schema → a valid OpenAI / Anthropic / Gemini / MCP tool.
 - [`llm-sse`](https://www.npmjs.com/package/llm-sse) — parse the streaming response into unified events; collect a message.
 - [`llm-errors`](https://www.npmjs.com/package/llm-errors) — normalize a provider error; decide whether to retry or fall back.
@@ -21,10 +22,7 @@ end:
 | [llm-sse](https://github.com/slegarraga/llm-sse) | [![npm](https://img.shields.io/npm/v/llm-sse.svg)](https://www.npmjs.com/package/llm-sse) | [![downloads](https://img.shields.io/npm/dm/llm-sse.svg)](https://www.npmjs.com/package/llm-sse) | [![CI](https://github.com/slegarraga/llm-sse/actions/workflows/ci.yml/badge.svg)](https://github.com/slegarraga/llm-sse/actions/workflows/ci.yml) |
 | [llm-errors](https://github.com/slegarraga/llm-errors) | [![npm](https://img.shields.io/npm/v/llm-errors.svg)](https://www.npmjs.com/package/llm-errors) | [![downloads](https://img.shields.io/npm/dm/llm-errors.svg)](https://www.npmjs.com/package/llm-errors) | [![CI](https://github.com/slegarraga/llm-errors/actions/workflows/ci.yml/badge.svg)](https://github.com/slegarraga/llm-errors/actions/workflows/ci.yml) |
 | [llm-messages](https://github.com/slegarraga/llm-messages) | [![npm](https://img.shields.io/npm/v/llm-messages.svg)](https://www.npmjs.com/package/llm-messages) | [![downloads](https://img.shields.io/npm/dm/llm-messages.svg)](https://www.npmjs.com/package/llm-messages) | [![CI](https://github.com/slegarraga/llm-messages/actions/workflows/ci.yml/badge.svg)](https://github.com/slegarraga/llm-messages/actions/workflows/ci.yml) |
-
-Companion utility: [`json-from-llm`](https://github.com/slegarraga/json-from-llm)
-extracts JSON from reasoning-model output before it enters a provider-portable
-tool or message flow.
+| [json-from-llm](https://github.com/slegarraga/json-from-llm) | [![npm](https://img.shields.io/npm/v/json-from-llm.svg)](https://www.npmjs.com/package/json-from-llm) | [![downloads](https://img.shields.io/npm/dm/json-from-llm.svg)](https://www.npmjs.com/package/json-from-llm) | [![CI](https://github.com/slegarraga/json-from-llm/actions/workflows/ci.yml/badge.svg)](https://github.com/slegarraga/json-from-llm/actions/workflows/ci.yml) |
 
 ## Run
 
