@@ -35,7 +35,36 @@ npm install
 npm start
 ```
 
-It runs **offline** against a canned OpenAI streaming response, so you can see the whole flow without an API key. Swap `mockOpenAIStream()` in `demo.mjs` for `(await fetch(...)).body` and it goes live — nothing else changes.
+It runs **offline** against a canned OpenAI streaming response, so you can see the whole flow without an API key. CI also runs this offline path.
+
+## Live provider mode
+
+Live mode is opt-in and only runs when `LLM_DEMO_LIVE=1` is set. A provider API key by itself is not enough, which keeps CI and local demos cost-safe by default.
+
+```sh
+LLM_DEMO_LIVE=1 \
+LLM_DEMO_API_KEY="$OPENAI_API_KEY" \
+LLM_DEMO_MODEL="gpt-4o-mini" \
+npm start
+```
+
+For OpenAI-compatible providers, point the demo at a compatible `/v1` base URL:
+
+```sh
+LLM_DEMO_LIVE=1 \
+LLM_DEMO_BASE_URL="https://openrouter.ai/api/v1" \
+LLM_DEMO_API_KEY="$OPENROUTER_API_KEY" \
+LLM_DEMO_MODEL="openai/gpt-4o-mini" \
+npm start
+```
+
+Live-mode rules:
+
+- `LLM_DEMO_LIVE=1` is required to make any network call.
+- `LLM_DEMO_API_KEY` and `LLM_DEMO_MODEL` are required in live mode.
+- `LLM_DEMO_BASE_URL` is optional and defaults to `https://api.openai.com/v1`.
+- The demo never prints API keys, request headers or error response bodies.
+- Live calls may incur provider costs; use a cheap model and a low-limit key.
 
 ## Portability map
 

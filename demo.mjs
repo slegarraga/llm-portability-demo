@@ -2,9 +2,9 @@
 //
 //   npm install && npm start
 //
-// Runs offline against a canned OpenAI streaming response. Swap
-// `mockOpenAIStream()` for `(await fetch(...)).body` and it goes live — the rest
-// is unchanged. That's the whole point: write the agent once, run it anywhere.
+// Runs offline against a canned OpenAI streaming response by default.
+// Set LLM_DEMO_LIVE=1 plus explicit live-provider env vars to exercise the same
+// flow against an OpenAI-compatible chat completions endpoint.
 import { toTool } from 'tool-schema';
 import { toAnthropic } from 'llm-messages';
 import { normalizeError, getRetryDelayMs } from 'llm-errors';
@@ -12,6 +12,62 @@ import { parseOpenAIStream, collectStream, toAssistantMessage } from 'llm-sse';
 import { extractJson } from 'json-from-llm';
 
 const log = (s) => console.log(s);
+const liveMode = process.env.LLM_DEMO_LIVE === '1';
+
+function requiredEnv(name) {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(
+      `Live mode requires ${name}. Run offline without LLM_DEMO_LIVE=1, or see README.md#live-provider-mode.`,
+    );
+  }
+  return value;
+}
+
+function liveChatCompletionsUrl() {
+  const baseUrl = process.env.LLM_DEMO_BASE_URL || 'https://api.openai.com/v1';
+  return `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
+}
+
+async function openAICompatibleStream({ city, tool }) {
+  const apiKey = requiredEnv('LLM_DEMO_API_KEY');
+  const model = requiredEnv('LLM_DEMO_MODEL');
+
+  const response = await fetch(liveChatCompletionsUrl(), {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      stream: true,
+      messages: [
+        {
+          role: 'user',
+          content: `What is the weather in ${city}? Use the get_weather tool if available.`,
+        },
+      ],
+      tools: [tool],
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Live provider returned HTTP ${response.status} ${response.statusText}. Response body omitted to avoid logging secrets.`,
+    );
+  }
+
+  if (!response.body) {
+    throw new Error('Live provider returned an empty response body.');
+  }
+
+  return response.body;
+}
+
+async function* replay(events) {
+  yield* events;
+}
 
 // 1) json-from-llm — extract structured config from model-like prose.
 const config = extractJson(`
@@ -76,12 +132,18 @@ async function* mockOpenAIStream() {
 
 // 3) llm-sse — parse the stream as it arrives, then collect a message.
 log('\n3) llm-sse        parse the stream live');
-for await (const event of parseOpenAIStream(mockOpenAIStream())) {
+log(liveMode ? '   mode: live OpenAI-compatible endpoint' : '   mode: offline canned stream');
+const streamSource = liveMode
+  ? await openAICompatibleStream({ city: config.city, tool })
+  : mockOpenAIStream();
+const events = [];
+for await (const event of parseOpenAIStream(streamSource)) {
+  events.push(event);
   if (event.type === 'text') log('   text: ' + JSON.stringify(event.text));
   if (event.type === 'tool_call_start') log('   tool call: ' + event.name);
   if (event.type === 'finish') log('   finish: ' + event.reason);
 }
-const collected = await collectStream(parseOpenAIStream(mockOpenAIStream()));
+const collected = await collectStream(replay(events));
 const assistant = toAssistantMessage(collected);
 log('   collected -> assistant message: ' + JSON.stringify(assistant));
 

@@ -40,5 +40,7 @@ tool-call semantics while converting to Anthropic and Gemini message shapes.
 - Small packages that can be adopted individually or together.
 
 The demo runs offline so maintainers can inspect the whole flow without API
-keys. Live OpenAI conformance tests are the next useful layer once API credits
-are available.
+keys. When maintainers want live confidence, `LLM_DEMO_LIVE=1` switches the
+streaming step to a real OpenAI-compatible `/v1/chat/completions` endpoint, with
+explicit `LLM_DEMO_API_KEY` and `LLM_DEMO_MODEL` requirements so CI and casual
+local runs stay cost-safe.
