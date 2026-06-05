@@ -5,6 +5,10 @@
 [![license](https://img.shields.io/github/license/slegarraga/llm-portability-demo.svg)](./LICENSE)
 [![offline demo](https://img.shields.io/badge/demo-offline-brightgreen.svg)](./demo.mjs)
 
+Security posture is tracked in [docs/security-posture.md](./docs/security-posture.md),
+including CodeQL, OpenSSF Scorecard, Dependabot, branch rules and the tracked
+npm lockfile.
+
 The zero-dependency provider-portability package suite working together, end to
 end:
 
