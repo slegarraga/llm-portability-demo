@@ -1,6 +1,7 @@
 # llm-portability-demo
 
 [![CI](https://github.com/slegarraga/llm-portability-demo/actions/workflows/ci.yml/badge.svg)](https://github.com/slegarraga/llm-portability-demo/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/slegarraga/llm-portability-demo/badge)](https://scorecard.dev/viewer/?uri=github.com/slegarraga/llm-portability-demo)
 [![license](https://img.shields.io/github/license/slegarraga/llm-portability-demo.svg)](./LICENSE)
 [![offline demo](https://img.shields.io/badge/demo-offline-brightgreen.svg)](./demo.mjs)
 
