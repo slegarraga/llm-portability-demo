@@ -13,7 +13,7 @@ The zero-dependency provider-portability package suite working together, end to
 end:
 
 - [`json-from-llm`](https://www.npmjs.com/package/json-from-llm) — recover JSON from reasoning, markdown or prose output.
-- [`tool-schema`](https://www.npmjs.com/package/tool-schema) — one JSON Schema → a valid OpenAI / Anthropic / Gemini / MCP tool.
+- [`tool-schema`](https://www.npmjs.com/package/tool-schema) — one JSON Schema → valid OpenAI / Anthropic / Gemini / MCP tools, including MCP `outputSchema`.
 - [`llm-sse`](https://www.npmjs.com/package/llm-sse) — parse the streaming response into unified events; collect a message.
 - [`llm-errors`](https://www.npmjs.com/package/llm-errors) — normalize a provider error; decide whether to retry or fall back.
 - [`llm-messages`](https://www.npmjs.com/package/llm-messages) — port the identical conversation to another provider.
@@ -48,10 +48,14 @@ explains the suite from the perspective of agent fallback and provider choice.
 ## What it shows
 
 ```
-1) tool-schema   one JSON Schema -> OpenAI tool
-2) llm-sse       parse the stream live, collect an assistant message
-3) llm-errors    primary provider 429s -> retryable, Retry-After 30s -> fall back
-4) llm-messages  the same conversation, ported to Anthropic shape
+1) json-from-llm  recover JSON from reasoning/prose output
+2) tool-schema    one JSON Schema -> OpenAI tool + MCP outputSchema
+3) llm-sse        parse the stream live, collect an assistant message
+4) llm-errors     primary provider 429s -> retryable, Retry-After 30s -> fall back
+5) llm-messages   the same conversation, ported to Anthropic shape
 ```
 
-Write the agent once. Tools, streaming, errors and conversation — all portable across providers. Each package is MIT and has zero runtime dependencies; they share data shapes (OpenAI Chat Completions as the hub) rather than depending on each other.
+Write the agent once. JSON extraction, tools, structured tool outputs, streaming,
+errors and conversation — all portable across providers. Each package is MIT and
+has zero runtime dependencies; they share data shapes (OpenAI Chat Completions
+as the hub) rather than depending on each other.

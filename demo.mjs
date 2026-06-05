@@ -24,21 +24,42 @@ const config = extractJson(`
 log('1) json-from-llm  recover JSON from reasoning/prose output');
 log('   ' + JSON.stringify(config));
 
-// 2) tool-schema — one JSON Schema becomes a valid OpenAI tool.
+const weatherInputSchema = {
+  type: 'object',
+  properties: { city: { type: 'string', description: 'City name' } },
+  required: ['city'],
+};
+const weatherOutputSchema = {
+  type: 'object',
+  properties: {
+    city: { type: 'string' },
+    temperature: { type: 'number' },
+    units: { type: 'string', enum: ['metric', 'imperial'] },
+  },
+  required: ['city', 'temperature', 'units'],
+};
+
+// 2) tool-schema — one JSON Schema becomes provider-specific tool schemas.
 const { tool } = toTool(
   {
     name: 'get_weather',
     description: 'Get the current weather for a city',
-    schema: {
-      type: 'object',
-      properties: { city: { type: 'string', description: 'City name' } },
-      required: ['city'],
-    },
+    schema: weatherInputSchema,
   },
   { target: 'openai' },
 );
-log('\n2) tool-schema    one JSON Schema -> OpenAI tool');
+const { tool: mcpTool } = toTool(
+  {
+    name: 'get_weather',
+    description: 'Get the current weather for a city',
+    schema: weatherInputSchema,
+    outputSchema: weatherOutputSchema,
+  },
+  { target: 'mcp' },
+);
+log('\n2) tool-schema    one JSON Schema -> OpenAI tool + MCP outputSchema');
 log('   ' + JSON.stringify(tool));
+log('   MCP outputSchema: ' + JSON.stringify(mcpTool.outputSchema));
 
 // A canned OpenAI streaming response: the model calls the tool.
 async function* mockOpenAIStream() {
