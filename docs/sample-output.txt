@@ -1,0 +1,36 @@
+1) json-from-llm  recover an agent plan from reasoning/prose output
+   plan: {"city":"Santiago","units":"metric","fallbackProvider":"anthropic","maxRetryMs":1000}
+
+2) tool-schema    one JSON Schema -> OpenAI, Anthropic, Gemini, MCP
+   provider targets: {"openai":"get_weather","anthropic":"object","gemini":"object","mcp":["object","object"]}
+   OpenAI tool: {"type":"function","function":{"name":"get_weather","description":"Get deterministic weather for a city from the offline fixture","parameters":{"type":"object","properties":{"city":{"type":"string","description":"City name"},"units":{"type":"string","enum":["metric","imperial"],"description":"Temperature unit system"}},"required":["city","units"],"additionalProperties":false}}}
+   MCP outputSchema: {"type":"object","properties":{"city":{"type":"string"},"temperature":{"type":"number"},"units":{"type":"string","enum":["metric","imperial"]},"condition":{"type":"string"},"observedAt":{"type":"string","format":"date-time"}},"required":["city","temperature","units","condition","observedAt"],"additionalProperties":false}
+
+3) llm-sse        parse the stream and collect the tool call
+   mode: offline canned OpenAI-compatible stream
+   text: "Let me check Santiago in metric units."
+   tool call: get_weather
+   finish: tool_calls
+   assistant: {"role":"assistant","content":"Let me check Santiago in metric units.","tool_calls":[{"id":"call_weather_santiago","type":"function","function":{"name":"get_weather","arguments":"{\"city\":\"Santiago\",\"units\":\"metric\"}"}}]}
+
+4) offline tool   execute get_weather with deterministic fixture data
+   args: {"city":"Santiago","units":"metric"}
+   result: {"city":"Santiago","temperature":18.4,"units":"metric","condition":"clear","observedAt":"2026-06-07T12:00:00-04:00"}
+
+5) llm-errors     primary provider failure becomes a routing decision
+   openai/rate_limit  retryable=true  retryAfter=30000ms
+   decision: retry delay exceeds 1000ms budget -> fall back to anthropic
+
+6) llm-messages   same OpenAI-hub history, provider-native fallback bodies
+   Anthropic: {"messages":[{"role":"user","content":"What's the weather in Santiago?"},{"role":"assistant","content":[{"type":"text","text":"Let me check Santiago in metric units."},{"type":"tool_use","id":"call_weather_santiago","name":"get_weather","input":{"city":"Santiago","units":"metric"}}]},{"role":"user","content":[{"type":"tool_result","tool_use_id":"call_weather_santiago","content":"{\"city\":\"Santiago\",\"temperature\":18.4,\"units\":\"metric\",\"condition\":\"clear\",\"observedAt\":\"2026-06-07T12:00:00-04:00\"}"}]}]}
+   Gemini: {"contents":[{"role":"user","parts":[{"text":"What's the weather in Santiago?"}]},{"role":"model","parts":[{"text":"Let me check Santiago in metric units."},{"functionCall":{"id":"call_weather_santiago","name":"get_weather","args":{"city":"Santiago","units":"metric"}}}]},{"role":"user","parts":[{"functionResponse":{"id":"call_weather_santiago","name":"get_weather","response":{"city":"Santiago","temperature":18.4,"units":"metric","condition":"clear","observedAt":"2026-06-07T12:00:00-04:00"}}}]}]}
+
+Proof matrix
+   json-from-llm -> plan city=Santiago units=metric fallback=anthropic
+   tool-schema   -> OpenAI tool=get_weather, MCP output fields=5
+   llm-sse       -> assistant tool_call=get_weather args=city,units
+   offline tool  -> fixture result=Santiago/18.4 metric clear
+   llm-errors    -> openai/rate_limit retryAfter=30000ms fallback=anthropic
+   llm-messages  -> Anthropic messages=3, Gemini contents=3
+
+Proof: one offline agent plan, one tool schema, one streamed tool call, one error policy, portable provider bodies.

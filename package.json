@@ -5,7 +5,8 @@
   "description": "All five provider-portability packages working together, end to end.",
   "license": "MIT",
   "scripts": {
-    "start": "node demo.mjs"
+    "start": "node demo.mjs",
+    "check": "node --check demo.mjs && node --check scripts/check-output.mjs && node scripts/check-output.mjs"
   },
   "dependencies": {
     "json-from-llm": "^0.1.2",
