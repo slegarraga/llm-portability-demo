@@ -9,7 +9,7 @@
     "check": "node --check demo.mjs && node --check scripts/check-output.mjs && node scripts/check-output.mjs"
   },
   "dependencies": {
-    "json-from-llm": "^0.1.2",
+    "json-from-llm": "^0.2.1",
     "llm-errors": "^0.1.3",
     "llm-messages": "^0.4.9",
     "llm-sse": "^0.4.2",
