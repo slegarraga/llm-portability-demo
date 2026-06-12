@@ -1,5 +1,6 @@
 {
   "name": "llm-portability-demo",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "description": "All five provider-portability packages working together, end to end.",
@@ -11,10 +12,10 @@
     "badges:downloads:check": "node scripts/update-download-badges.mjs --check"
   },
   "dependencies": {
-    "json-from-llm": "^0.2.1",
-    "llm-errors": "^0.1.5",
-    "llm-messages": "^0.5.0",
-    "llm-sse": "^0.4.4",
-    "tool-schema": "^0.3.2"
+    "json-from-llm": "^0.2.3",
+    "llm-errors": "^0.1.7",
+    "llm-messages": "^0.5.2",
+    "llm-sse": "^0.4.6",
+    "tool-schema": "^0.4.0"
   }
 }
