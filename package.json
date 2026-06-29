@@ -7,9 +7,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node demo.mjs",
-    "check": "node --check demo.mjs && node --check scripts/check-output.mjs && node scripts/check-output.mjs",
-    "badges:downloads": "node scripts/update-download-badges.mjs",
-    "badges:downloads:check": "node scripts/update-download-badges.mjs --check"
+    "check": "node --check demo.mjs && node --check scripts/check-output.mjs && node scripts/check-output.mjs"
   },
   "dependencies": {
     "json-from-llm": "^0.2.3",
