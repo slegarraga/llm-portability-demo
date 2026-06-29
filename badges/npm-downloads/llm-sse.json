@@ -1,8 +1,0 @@
-{
-  "schemaVersion": 1,
-  "label": "downloads",
-  "message": "1.1k/30d",
-  "color": "brightgreen",
-  "cacheSeconds": 3600,
-  "namedLogo": "npm"
-}
