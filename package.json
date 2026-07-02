@@ -14,6 +14,6 @@
     "llm-errors": "^0.1.9",
     "llm-messages": "^0.5.4",
     "llm-sse": "^0.4.9",
-    "tool-schema": "^0.4.0"
+    "tool-schema": "^0.4.2"
   }
 }
