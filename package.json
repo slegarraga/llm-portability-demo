@@ -13,7 +13,7 @@
     "json-from-llm": "^0.2.3",
     "llm-errors": "^0.1.7",
     "llm-messages": "^0.5.2",
-    "llm-sse": "^0.4.6",
+    "llm-sse": "^0.4.9",
     "tool-schema": "^0.4.0"
   }
 }
