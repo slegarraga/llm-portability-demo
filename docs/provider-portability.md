@@ -21,7 +21,7 @@ This suite keeps those adapters small, typed and inspectable.
 
 1. Describe a tool once as JSON Schema.
 2. Convert that schema into the provider-specific tool format.
-3. Stream and collect the assistant response into a stable message shape.
+3. Stream and collect typed OpenAI Responses events into a stable message shape.
 4. Normalize retryable errors and fallback decisions.
 5. Port the resulting conversation to the next provider without rewriting the
    agent loop.
@@ -39,8 +39,13 @@ tool-call semantics while converting to Anthropic and Gemini message shapes.
 - Explicit reporting for lossy conversions instead of silently dropping data.
 - Small packages that can be adopted individually or together.
 
-The demo runs offline so maintainers can inspect the whole flow without API
-keys. When maintainers want live confidence, `LLM_DEMO_LIVE=1` switches the
-streaming step to a real OpenAI-compatible `/v1/chat/completions` endpoint, with
-explicit `LLM_DEMO_API_KEY` and `LLM_DEMO_MODEL` requirements so CI and casual
-local runs stay cost-safe.
+The demo runs an OpenAI Responses fixture offline so maintainers can inspect the
+whole cross-package flow without API keys. The normalized message then becomes
+the OpenAI-shaped conversation hub that `llm-messages` converts to Anthropic and
+Gemini. This conformance path is tracked in
+[llm-messages#29](https://github.com/slegarraga/llm-messages/issues/29).
+
+When maintainers want live confidence, `LLM_DEMO_LIVE=1` switches the streaming
+step to a real OpenAI-compatible `/v1/chat/completions` endpoint, with explicit
+`LLM_DEMO_API_KEY` and `LLM_DEMO_MODEL` requirements so CI and casual local runs
+stay cost-safe.

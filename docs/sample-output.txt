@@ -7,10 +7,10 @@
    MCP outputSchema: {"type":"object","properties":{"city":{"type":"string"},"temperature":{"type":"number"},"units":{"type":"string","enum":["metric","imperial"]},"condition":{"type":"string"},"observedAt":{"type":"string","format":"date-time"}},"required":["city","temperature","units","condition","observedAt"],"additionalProperties":false}
 
 3) llm-sse        parse the stream and collect the tool call
-   mode: offline canned OpenAI-compatible stream
+   mode: offline canned OpenAI Responses stream
    text: "Let me check Santiago in metric units."
    tool call: get_weather
-   finish: tool_calls
+   finish: completed
    assistant: {"role":"assistant","content":"Let me check Santiago in metric units.","tool_calls":[{"id":"call_weather_santiago","type":"function","function":{"name":"get_weather","arguments":"{\"city\":\"Santiago\",\"units\":\"metric\"}"}}]}
 
 4) offline tool   execute get_weather with deterministic fixture data
@@ -28,9 +28,9 @@
 Proof matrix
    json-from-llm -> plan city=Santiago units=metric fallback=anthropic
    tool-schema   -> OpenAI tool=get_weather, MCP output fields=5
-   llm-sse       -> assistant tool_call=get_weather args=city,units
+   llm-sse       -> Responses tool_call=get_weather args=city,units
    offline tool  -> fixture result=Santiago/18.4 metric clear
    llm-errors    -> openai/rate_limit retryAfter=30000ms fallback=anthropic
    llm-messages  -> Anthropic messages=3, Gemini contents=3
 
-Proof: one offline agent plan, one tool schema, one streamed tool call, one error policy, portable provider bodies.
+Proof: one offline agent plan, one tool schema, one Responses stream, one error policy, portable provider bodies.

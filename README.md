@@ -10,7 +10,7 @@ compose into a useful agent flow:
 
 1. Recover a structured agent plan from model-shaped prose.
 2. Generate provider-native tool schemas from one JSON Schema.
-3. Parse an OpenAI-compatible streaming tool call.
+3. Parse an OpenAI Responses API streaming tool call.
 4. Execute a deterministic local tool and append the tool result.
 5. Normalize a provider failure into a routing decision.
 6. Convert the same OpenAI-hub conversation into Anthropic and Gemini request
@@ -44,7 +44,7 @@ The important shape is:
 ```text
 1) json-from-llm  recover an agent plan from reasoning/prose output
 2) tool-schema    one JSON Schema -> OpenAI, Anthropic, Gemini, MCP
-3) llm-sse        parse the stream and collect the tool call
+3) llm-sse        parse an OpenAI Responses stream and collect the tool call
 4) offline tool   execute get_weather with deterministic fixture data
 5) llm-errors     primary provider failure becomes a routing decision
 6) llm-messages   same OpenAI-hub history, provider-native fallback bodies
@@ -52,12 +52,12 @@ The important shape is:
 Proof matrix
    json-from-llm -> plan city=Santiago units=metric fallback=anthropic
    tool-schema   -> OpenAI tool=get_weather, MCP output fields=5
-   llm-sse       -> assistant tool_call=get_weather args=city,units
+   llm-sse       -> Responses tool_call=get_weather args=city,units
    offline tool  -> fixture result=Santiago/18.4 metric clear
    llm-errors    -> openai/rate_limit retryAfter=30000ms fallback=anthropic
    llm-messages  -> Anthropic messages=3, Gemini contents=3
 
-Proof: one offline agent plan, one tool schema, one streamed tool call, one error policy, portable provider bodies.
+Proof: one offline agent plan, one tool schema, one Responses stream, one error policy, portable provider bodies.
 ```
 
 ## Architecture
@@ -69,7 +69,7 @@ is the common shape many OpenAI-compatible providers already speak.
 model-like prose
   -> json-from-llm extracts { city, units, fallbackProvider, maxRetryMs }
   -> tool-schema emits OpenAI, Anthropic, Gemini and MCP tool schemas
-  -> llm-sse parses an OpenAI-compatible SSE stream into a tool-call message
+  -> llm-sse parses typed OpenAI Responses SSE events into a tool-call message
   -> offline get_weather fixture returns deterministic tool output
   -> llm-errors normalizes a 429 + Retry-After into a fallback decision
   -> llm-messages ports the same hub history to Anthropic and Gemini bodies
@@ -95,8 +95,10 @@ run in CI, on an airplane, or inside a fresh clone after `npm install`.
 
 ## Live provider mode
 
-Live mode is opt-in and only runs when `LLM_DEMO_LIVE=1` is set. A provider API
-key by itself is not enough, which keeps CI and local demos cost-safe by default.
+Live mode is opt-in and only runs when `LLM_DEMO_LIVE=1` is set. The deterministic
+offline path exercises OpenAI Responses; live mode deliberately keeps the broader
+OpenAI-compatible Chat Completions endpoint. A provider API key by itself is not
+enough, which keeps CI and local demos cost-safe by default.
 
 ```sh
 LLM_DEMO_LIVE=1 \
