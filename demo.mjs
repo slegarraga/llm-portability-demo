@@ -2,18 +2,25 @@
 //
 //   npm install && npm start
 //
-// Runs offline against a canned OpenAI-compatible streaming response by default.
+// Runs offline against a canned OpenAI Responses API stream by default.
 // Set LLM_DEMO_LIVE=1 plus explicit live-provider env vars to exercise the same
 // flow against an OpenAI-compatible chat completions endpoint.
 import { toTool } from 'tool-schema';
 import { toAnthropic, toGemini } from 'llm-messages';
 import { normalizeError, getRetryDelayMs } from 'llm-errors';
-import { parseOpenAIStream, collectStream, toAssistantMessage } from 'llm-sse';
+import {
+  parseOpenAIResponsesStream,
+  parseOpenAIStream,
+  collectStream,
+  toAssistantMessage,
+} from 'llm-sse';
 import { extractJson } from 'json-from-llm';
 
 const log = (s) => console.log(s);
 const liveMode = process.env.LLM_DEMO_LIVE === '1';
-const providerLabel = liveMode ? 'live OpenAI-compatible endpoint' : 'offline canned OpenAI-compatible stream';
+const providerLabel = liveMode
+  ? 'live OpenAI-compatible Chat Completions endpoint'
+  : 'offline canned OpenAI Responses stream';
 
 const weatherFixtures = new Map([
   [
@@ -179,32 +186,63 @@ log(
 log('   OpenAI tool: ' + JSON.stringify(openAITool));
 log('   MCP outputSchema: ' + JSON.stringify(mcpTool.outputSchema));
 
-// A canned OpenAI streaming response: the model calls the tool.
-async function* mockOpenAIStream() {
-  const chunks = [
-    { choices: [{ delta: { role: 'assistant', content: 'Let me check Santiago in metric units.' } }] },
+// A canned OpenAI Responses API stream: the model calls the tool.
+async function* mockOpenAIResponsesStream() {
+  const events = [
     {
-      choices: [
-        {
-          delta: {
-            tool_calls: [
-              {
-                index: 0,
-                id: 'call_weather_santiago',
-                function: { name: 'get_weather', arguments: '' },
-              },
-            ],
-          },
-        },
-      ],
+      type: 'response.output_text.delta',
+      item_id: 'msg_weather_santiago',
+      output_index: 0,
+      content_index: 0,
+      delta: 'Let me check Santiago in metric units.',
+      sequence_number: 1,
     },
-    { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: '{"city":' } }] } }] },
-    { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: '"Santiago",' } }] } }] },
-    { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: '"units":"metric"}' } }] } }] },
-    { choices: [{ delta: {}, finish_reason: 'tool_calls' }] },
+    {
+      type: 'response.output_item.added',
+      output_index: 1,
+      item: {
+        id: 'fc_weather_santiago',
+        type: 'function_call',
+        call_id: 'call_weather_santiago',
+        name: 'get_weather',
+        arguments: '',
+        status: 'in_progress',
+      },
+      sequence_number: 2,
+    },
+    {
+      type: 'response.function_call_arguments.delta',
+      item_id: 'fc_weather_santiago',
+      output_index: 1,
+      delta: '{"city":',
+      sequence_number: 3,
+    },
+    {
+      type: 'response.function_call_arguments.delta',
+      item_id: 'fc_weather_santiago',
+      output_index: 1,
+      delta: '"Santiago",',
+      sequence_number: 4,
+    },
+    {
+      type: 'response.function_call_arguments.delta',
+      item_id: 'fc_weather_santiago',
+      output_index: 1,
+      delta: '"units":"metric"}',
+      sequence_number: 5,
+    },
+    {
+      type: 'response.completed',
+      response: {
+        id: 'resp_weather_santiago',
+        status: 'completed',
+      },
+      sequence_number: 6,
+    },
   ];
-  for (const chunk of chunks) yield `data: ${JSON.stringify(chunk)}\n\n`;
-  yield 'data: [DONE]\n\n';
+  for (const event of events) {
+    yield `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`;
+  }
 }
 
 // 3) llm-sse: parse the stream as it arrives, then collect a message.
@@ -212,9 +250,12 @@ log('\n3) llm-sse        parse the stream and collect the tool call');
 log('   mode: ' + providerLabel);
 const streamSource = liveMode
   ? await openAICompatibleStream({ city: config.city, tool: openAITool })
-  : mockOpenAIStream();
+  : mockOpenAIResponsesStream();
+const parseProviderStream = liveMode
+  ? parseOpenAIStream
+  : parseOpenAIResponsesStream;
 const events = [];
-for await (const event of parseOpenAIStream(streamSource)) {
+for await (const event of parseProviderStream(streamSource)) {
   events.push(event);
   if (event.type === 'text') log('   text: ' + JSON.stringify(event.text));
   if (event.type === 'tool_call_start') log('   tool call: ' + event.name);
@@ -275,7 +316,10 @@ log('   Gemini: ' + JSON.stringify(gemini));
 log('\nProof matrix');
 log(`   json-from-llm -> plan city=${config.city} units=${config.units} fallback=${config.fallbackProvider}`);
 log(`   tool-schema   -> OpenAI tool=${openAITool.function.name}, MCP output fields=${mcpTool.outputSchema.required.length}`);
-log(`   llm-sse       -> assistant tool_call=${toolCall.function.name} args=${Object.keys(toolArgs).join(',')}`);
+log(
+  `   llm-sse       -> Responses tool_call=${toolCall.function.name} ` +
+    `args=${Object.keys(toolArgs).join(',')}`,
+);
 log(
   `   offline tool  -> fixture result=${toolResult.city}/${toolResult.temperature} ` +
     `${toolResult.units} ${toolResult.condition}`,
@@ -286,4 +330,7 @@ log(
 );
 log(`   llm-messages  -> Anthropic messages=${claude.messages.length}, Gemini contents=${gemini.contents.length}`);
 
-log('\nProof: one offline agent plan, one tool schema, one streamed tool call, one error policy, portable provider bodies.');
+log(
+  '\nProof: one offline agent plan, one tool schema, one Responses stream, ' +
+    'one error policy, portable provider bodies.',
+);
